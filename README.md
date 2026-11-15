@@ -1,4 +1,4 @@
-# ARTEMIS: global harmonized satellite fire calendar
+# ARTEMIS: Global Fire Intelligent System
 
 > NASA Space Apps Challenge 2026 · Arek Artemis (ITS Surabaya)
 
@@ -209,4 +209,20 @@ Artemis is a decision-support tool. Satellite detections are observations, not i
 
 ## License and external services
 
-Review each provider's terms before public deployment, and keep the attributions above (NASA FIRMS, OpenStreetMap / Nominatim / Overpass, CARTO, OpenWeatherMap, NewsData.io, Every.org, CelesTrak, geoBoundaries).
+The project is released under the [MIT License](LICENSE). It also incorporates
+third-party data and services whose terms and attribution requirements apply:
+
+| Provider | Data or service | Terms / attribution |
+|---|---|---|
+| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) | MODIS C6.1 and VIIRS 375 m fire detections | Courtesy of NASA Earthdata / LANCE / EOSDIS |
+| [geoBoundaries](https://www.geoboundaries.org/) | IDN ADM1 administrative boundaries | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| [OpenStreetMap](https://www.openstreetmap.org/) | Nominatim geocoding and Overpass facilities | [ODbL](https://www.openstreetmap.org/copyright); follow the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) |
+| [CARTO](https://carto.com/) | Dark Matter basemap tiles | © CARTO |
+| [Esri](https://www.esri.com/) | World Dark Gray basemap | © Esri |
+| [OpenWeatherMap](https://openweathermap.org/) | Weather and wind data | Provider terms apply |
+| [CelesTrak](https://celestrak.org/) | Satellite TLE data | Provider terms apply |
+| [NewsData.io](https://newsdata.io/) | Wildfire news headlines | Provider terms apply |
+| [Every.org](https://www.every.org/) | Nonprofit discovery and donation integration | Provider terms apply |
+
+See [`LICENSE`](LICENSE) for the complete MIT license and third-party
+attributions. Review each provider's current terms before public deployment.
