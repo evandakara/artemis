@@ -51,7 +51,7 @@ const stats = [
   { icon: Activity, value: '26 yr', label: 'archive view' },
   { icon: MapPin, value: 'ID', label: 'Indonesia focus' },
   { icon: Database, value: 'NASA', label: 'FIRMS source' },
-  { icon: Rocket, value: 'NRT', label: 'live signals' },
+  { icon: Rocket, value: 'MODIS + VIIRS', label: 'live signals' },
 ];
 
 export function AboutModal({ isOpen, onClose }: AboutModalProps) {
@@ -213,7 +213,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
               </div>
               <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-5 text-[10px] text-white/40">
                 <span>Built for NASA Space Apps Challenge 2026</span>
-                <span>ITS Surabaya · Indonesia</span>
+                <span>Arek Artemis · Indonesia</span>
               </div>
             </div>
           )}
@@ -247,7 +247,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
               <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-accent-200/65">People behind the signal</p>
-                  <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">The Artemis crew.</h3>
+                  <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">Artemis Team</h3>
                 </div>
                 <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-white/35">ITS Surabaya</span>
               </div>
