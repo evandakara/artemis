@@ -90,8 +90,11 @@ export interface AdminArea {
   state: string | null;
 }
 
-/** Country and state of a point (English names), for matching local organizations. */
-export async function reverseGeocodeAdmin(latitude: number, longitude: number, signal?: AbortSignal): Promise<AdminArea> {
+// One lookup per point, shared by the Impact Hub header and the donation list
+// (Nominatim asks for at most one request per second). Failures are not cached.
+const adminCache = new Map<string, Promise<AdminArea>>();
+
+async function lookupAdmin(latitude: number, longitude: number): Promise<AdminArea> {
   const params = new URLSearchParams({
     lat: latitude.toString(),
     lon: longitude.toString(),
@@ -99,10 +102,29 @@ export async function reverseGeocodeAdmin(latitude: number, longitude: number, s
     zoom: '5',
     'accept-language': 'en',
   });
-  const response = await fetch(`${NOMINATIM_URL}/reverse?${params.toString()}`, { signal, headers: { Accept: 'application/json' } });
+  const response = await fetch(`${NOMINATIM_URL}/reverse?${params.toString()}`, { headers: { Accept: 'application/json' } });
   if (!response.ok) throw new Error(`Location lookup failed (${response.status}).`);
   const result = await response.json() as { address?: { country?: unknown; country_code?: unknown; state?: unknown } };
   const a = result.address;
   if (typeof a?.country !== 'string' || typeof a.country_code !== 'string') throw new Error('No country at this point.');
   return { country: a.country, countryCode: a.country_code.toLowerCase(), state: typeof a.state === 'string' ? a.state : null };
+}
+
+/** Country and state of a point (English names), for matching local organizations. */
+export function reverseGeocodeAdmin(latitude: number, longitude: number, signal?: AbortSignal): Promise<AdminArea> {
+  const key = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  let hit = adminCache.get(key);
+  if (!hit) {
+    hit = lookupAdmin(latitude, longitude);
+    adminCache.set(key, hit);
+    hit.catch(() => adminCache.delete(key));
+  }
+  const shared = hit;
+  if (!signal) return shared;
+  // The shared request keeps running; an aborted caller just stops waiting for it.
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) return reject(new DOMException('Aborted', 'AbortError'));
+    signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+    shared.then(resolve, reject);
+  });
 }

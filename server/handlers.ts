@@ -36,7 +36,7 @@ const isArea = (value: string) =>
  */
 export async function handleFirms(params: URLSearchParams, env: Env): Promise<ProxyResult> {
   const key = env.FIRMS_API_KEY;
-  if (!key) return text(500, 'FIRMS_API_KEY is not configured on the server.');
+  if (!key) return text(500, 'FIRMS_API_KEY is not configured on the server. Add it to .env (local), Codespaces secrets, or the Vercel environment variables.');
 
   const product = params.get('product') ?? '';
   const area = params.get('area') ?? 'world';
@@ -79,7 +79,7 @@ const firmsCache = new Map<string, { at: number; body: string }>();
  */
 export async function handleWeather(params: URLSearchParams, env: Env): Promise<ProxyResult> {
   const key = env.OPENWEATHER_API_KEY;
-  if (!key) return text(500, 'OPENWEATHER_API_KEY is not configured on the server.');
+  if (!key) return text(500, 'OPENWEATHER_API_KEY is not configured on the server. Add it to .env (local), Codespaces secrets, or the Vercel environment variables.');
 
   const lat = Number(params.get('lat'));
   const lon = Number(params.get('lon'));
@@ -111,7 +111,7 @@ export async function handleWeather(params: URLSearchParams, env: Env): Promise<
  */
 export async function handleNews(_params: URLSearchParams, env: Env): Promise<ProxyResult> {
   const key = env.NEWSDATA_API_KEY || env.VITE_NEWSDATA_API_KEY;
-  if (!key) return text(500, 'NEWSDATA_API_KEY is not configured on the server.');
+  if (!key) return text(500, 'NEWSDATA_API_KEY is not configured on the server. Add it to .env (local), Codespaces secrets, or the Vercel environment variables.');
   // English only, newest first, from NewsData's top-priority domains (its curated tier of
   // established outlets), with syndicated duplicates removed.
   const query = new URLSearchParams({

@@ -2,7 +2,7 @@ import { defineConfig, loadEnv, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { setDefaultResultOrder } from 'node:dns';
-import { handleFirms, handleNews, handleTle, handleWeather, type ProxyResult } from './server/handlers';
+import { handleFirms, handleNews, handleTle, handleWeather, type ProxyResult } from './server/handlers.js';
 
 setDefaultResultOrder('ipv4first');
 

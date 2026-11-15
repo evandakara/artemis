@@ -10,6 +10,7 @@ import { BADGE_RULE, rankFireCampaigns } from '@/data/fireCampaigns';
 import { reverseGeocodeAdmin, type AdminArea } from '@/data/locationApi';
 import { DonationCard } from '@/components/DonationCard';
 import { FireCampaignCard } from '@/components/FireCampaignCard';
+import { InfoTip } from '@/components/impact/shared';
 
 interface DonationWidgetProps {
   /** Selected spot: campaigns are matched to its country and region, ranked by distance. */
@@ -96,25 +97,26 @@ export function DonationWidget({ lat, lng, province, currentLocation, onViewLoca
     : undefined;
 
   return (
-    <section>
-      <p className="text-[11px] leading-4 text-white/60">
-        {adminState === 'loading' ? (
-          'Finding groups that work in this area…'
-        ) : localOrgs > 0 ? (
-          <>{localOrgs} organization{localOrgs === 1 ? '' : 's'} with sourced fire work in <strong className="font-medium text-white/85">{placeName}</strong>, nearest first{coveringCampaigns > 0 ? ', then campaigns covering it' : ''}.</>
-        ) : (
-          <>No organization with sourced fire work in <strong className="font-medium text-white/85">{placeName}</strong> yet.{coveringCampaigns > 0 ? ` Showing ${coveringCampaigns} campaign${coveringCampaigns === 1 ? '' : 's'} covering it first, then the nearest groups.` : ranked.length > 0 ? ' Showing the nearest groups.' : ''}</>
-        )}
-      </p>
-      <details className="mt-1.5 text-[11px] leading-4 text-white/60">
-        <summary className="cursor-pointer text-white/75 underline decoration-dotted underline-offset-2 hover:text-white">What “Verified by Artemis” means</summary>
-        <p className="mt-1">{BADGE_RULE} Checked by hand; sources are linked on every card. Cards without the badge were not checked by Artemis.</p>
-      </details>
-      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-white/55">
-        {total} option{total === 1 ? '' : 's'}{total > 2 ? ' · scroll for more' : ''}
-      </p>
+    <section className="flex min-h-0 flex-1 flex-col">
+      <div className="flex items-center justify-between gap-2 text-[11px] leading-4 text-white/60">
+        <p className="min-w-0">
+          {adminState === 'loading' ? (
+            'Finding groups in this area…'
+          ) : localOrgs > 0 ? (
+            <>{localOrgs} group{localOrgs === 1 ? '' : 's'} working in <strong className="font-medium text-white/85">{placeName}</strong>, nearest first</>
+          ) : (
+            <>No group listed for <strong className="font-medium text-white/85">{placeName}</strong> yet{coveringCampaigns > 0 || ranked.length > 0 ? ': showing the nearest' : ''}</>
+          )}
+        </p>
+        <span className="flex shrink-0 items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-white/50">
+          {total} option{total === 1 ? '' : 's'}
+          <InfoTip label="What Verified by Artemis means">
+            <strong className="text-white">Verified by Artemis:</strong> {BADGE_RULE} Checked by hand; sources are linked on every card. Cards without the badge were not checked by Artemis.
+          </InfoTip>
+        </span>
+      </div>
       <div
-        className="scroll-fade mt-2 grid max-h-[26rem] gap-3 overflow-y-auto overscroll-contain rounded-[4px] py-2 pr-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-400"
+        className="scroll-fade mt-2 grid max-h-[26rem] min-h-0 content-start gap-3 overflow-y-auto overscroll-contain rounded-[4px] py-2 pr-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-400 lg:max-h-none lg:flex-1"
         tabIndex={0}
         role="region"
         aria-label="Donation campaigns"

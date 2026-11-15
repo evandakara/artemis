@@ -14,6 +14,32 @@ Artemis is a global platform for putting NASA fire detections from MODIS (2000�
    - open the Impact Hub.
 3. **Audit** `/audit`: run demo plot B, then download the due diligence statement.
 
+## Project summary
+
+Growing up in Indonesia, our team has witnessed firsthand the devastating annual toll of Karhutla (forest and land fires). During these seasons, peatland fires blanket cities and schools in toxic transboundary haze, disrupt daily life, and leave local responders struggling to tell natural drought fires apart from systematic land-clearing burns. We built ARTEMIS to turn over two decades of satellite history into a practical shield for our communities and emergency managers worldwide.
+
+ARTEMIS is an open-source decision-support platform built around a Harmonized Burning Activity Calendar. It merges NASA Earthdata FIRMS fire detections from MODIS (2000 onward, 1 km pixels) and VIIRS (2012 onward, 375 m pixels) into one timeline you can compare across both sensors. Because VIIRS picks up smaller fires, raw detection counts jump about 4.9× after 2012 even when fire activity on the ground stays the same. Artemis removes that artificial jump.
+
+The pipeline runs in four steps:
+
+1. Grid every detection into Uber H3 resolution-8 cells (about 0.74 km²) and count fire cell-days: one cell on one day with at least one detection.
+2. Scale VIIRS to match MODIS with a calibration factor (α) for each calendar month, taken from the years both sensors overlap.
+3. Mask 18,251 persistent heat sources, such as volcanoes and industrial gas flares.
+4. Compare each month with a 25-year baseline using a robust anomaly score: (month − median) ÷ IQR.
+
+Driven by our focus on Karhutla, the harmonized archive holds 7.79 million detections for Indonesia as our primary demonstration region, while live FIRMS detections cover the whole world.
+
+From any hotspot, the Impact Hub gives you four ways to act:
+
+1. **Satellite escrow and relief routing.** Donate to fire groups through Every.org and Kitabisa, or try a simulated proof-of-extinguish escrow and pre-season prevention pool. Artemis predicts the next NOAA-20 and NOAA-21 overpass with SGP4 orbit models, so donors know when a satellite can next check whether the fire reads 0 MW.
+2. **Citizen ground-truth.** A simulated SMS and WhatsApp gateway lets village fire patrols (Masyarakat Peduli Api) with no mobile data confirm or reject a hotspot with one digit. Their replies become labels for checking the signature score.
+3. **Downwind haze shield.** Artemis combines live OpenWeatherMap wind with OpenStreetMap to draw 6, 12, and 24-hour smoke zones, list the schools and clinics inside them, and draft a haze alert for their staff.
+4. **Civic watchdog and P2P logistics.** Generate a printable evidence dossier for environmental law enforcement, and post equipment needs on a peer-to-peer board where nearby groups pledge supplies.
+
+Artemis also scores every Indonesian fire cell from 0 to 100 on four patterns linked to human-set fires: burning that recurs over the years, burning outside the fire season, line-shaped clusters, and afternoon timing. Treat a high score as a reason to check the site on the ground; the score never names who started a fire. An EUDR zero-burn audit checks any plot for burning as part of supply-chain due diligence.
+
+The app runs on TypeScript, React, Vite, and Tailwind CSS, with a Python data pipeline, and deploys on Vercel. Because the archive is pre-processed into static files, the map loads in the browser with no database behind it. Data colors use colorblind-safe ramps, and you can export data as CSV and reports as PDF.
+
 ## The problem
 
 Forest, peat, grassland, and agricultural fires worldwide are monitored mostly through 24–48 h live hotspot feeds. Those feeds answer "where is it burning now", but not "is this month unusual?", "does this place burn every few years?" or "what can I do about this hotspot?". Indonesia is the current demonstration region because it provides a strong test case for seasonal and recurring fire activity.
@@ -110,7 +136,10 @@ The demo audit plots, chosen from the processed data:
 | OpenStreetMap via Overpass API | Schools and health facilities in the haze cone | Browser, public endpoint |
 | OpenStreetMap Nominatim | Place names for hotspots | Browser, public endpoint |
 | CARTO basemaps | Dark map tiles | Browser |
+| Esri World Dark Gray Canvas | Fallback dark tiles when no CARTO key is set | Browser, keyless |
+| NASA Black Marble 2016 | Land dots on the landing-page globe | Bundled image |
 | Every.org | Global wildfire nonprofits | Browser (public partner key) |
+| Bing Web Search | Optional donation-discovery service (`services/donation-discovery`) | Server-side, optional |
 | geoBoundaries (CC BY 4.0) | Province polygons in the pipeline | Pipeline only |
 
 Map data © OpenStreetMap contributors, © CARTO. Fire data courtesy of NASA FIRMS (LANCE / EOSDIS).
@@ -126,6 +155,10 @@ npm run dev             # http://localhost:5173
 Checks: `npm run typecheck`, `npm run lint`, `npm run build`.
 
 The processed archive ships in `public/data/` (about 126 MB), so the pipeline is only needed to rebuild it.
+
+**Keys are per machine.** `.env` is never committed, so a fresh clone or Codespace starts without keys: the live map then shows "FIRMS_API_KEY is not configured on the server" and has no live detections (the archive calendar still works). Add the keys from the table below to that machine's `.env`.
+
+**GitHub Codespaces.** `.devcontainer/devcontainer.json` installs dependencies and asks for the keys when the Codespace is created. To set them once for every Codespace: GitHub → **Settings → Codespaces → Secrets → New secret**, add `FIRMS_API_KEY`, `OPENWEATHER_API_KEY` (and the optional ones), give the secret access to this repository, then rebuild or recreate the Codespace. Run `npm run dev` and open the forwarded port 5173.
 
 ### Rebuilding the archive
 
@@ -148,7 +181,7 @@ Server-side variables are read only by the `/api/*` functions (and the Vite dev 
 | `FIRMS_API_KEY` | Server | Yes | NASA FIRMS MAP_KEY |
 | `OPENWEATHER_API_KEY` | Server | Yes | OpenWeatherMap current weather |
 | `NEWSDATA_API_KEY` | Server | No | NewsData.io (the legacy name `VITE_NEWSDATA_API_KEY` is still read server-side) |
-| `VITE_CARTO_API_KEY` | Browser | No | CARTO basemap key |
+| `VITE_CARTO_API_KEY` | Browser | No | CARTO dark basemap; without it the maps fall back to Esri's keyless dark canvas |
 | `VITE_EVERY_ORG_API_KEY` | Browser | No | Every.org public partner key |
 | `VITE_DONATION_DISCOVERY_URL` | Browser | No | Optional Python discovery service (`services/donation-discovery`) |
 
@@ -165,6 +198,32 @@ Server-side variables are read only by the `/api/*` functions (and the Vite dev 
 5. After the first deploy, set the absolute share-card URL in `index.html` (`og:image`, `twitter:image`) to `https://<your-domain>/og-image.png`.
 
 Alternatives to the Git route: the Pro plan, or shrinking the archive under 100 MB (for example by gzipping the `hex/` and `forensics/` JSON as the point files already are) and deploying with `vercel --prod`.
+
+**The GitHub Actions workflow** (`.github/workflows/main.yml`) is a second deploy path: on every push to `main` it builds with the Vercel CLI and uploads the result with `vercel deploy --prebuilt --prod`, using the `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` repository secrets. That upload goes through the CLI, so it is subject to the same Hobby upload limit as `vercel --prod`. If the Vercel Git integration is connected, the workflow is redundant and can be removed.
+
+### Live data on the deployed site
+
+Nothing needs redeploying for the data to stay current. The live layers are fetched at request time by the `/api/*` functions, and Vercel's edge caches each response for a short window:
+
+| Route | Source | Edge cache |
+|---|---|---|
+| `/api/firms` | NASA FIRMS NRT detections, worldwide | 15 min |
+| `/api/weather` | OpenWeatherMap current weather | 10 min |
+| `/api/news` | NewsData.io wildfire headlines | 30 min |
+| `/api/tle` | CelesTrak orbital elements for NOAA-20 / NOAA-21 | 6 h |
+
+The browser also keeps the FIRMS and news responses for 30 minutes, so an open tab shows new detections after a reload once that window passes. FIRMS itself publishes NRT detections roughly three hours after each satellite pass. Only the 26-year harmonized archive in `public/data/` (Indonesia) is static; it changes when the pipeline is re-run and the result is committed.
+
+Changing a key in **Settings → Environment Variables** takes effect on the next deployment (Vercel → Deployments → ⋯ → Redeploy), not on the running one.
+
+### Deploy checklist
+
+- [ ] Vercel project imported from `evandakara/artemis`, preset Vite.
+- [ ] `FIRMS_API_KEY` and `OPENWEATHER_API_KEY` set for Production and Preview; `NEWSDATA_API_KEY` too if the news strip should show headlines.
+- [ ] `VITE_CARTO_API_KEY` set if you want the CARTO basemap (otherwise Esri's keyless one is used). `VITE_*` values are baked in at build time, so redeploy after changing them.
+- [ ] After deploying, open `https://<your-domain>/api/firms?product=VIIRS_NOAA21_NRT&area=world&days=1` and `/api/weather?lat=-0.5&lon=101.4`: both should return 200 with data, not a "not configured" message.
+- [ ] Open `/dashboard` and confirm live hotspots appear on the map.
+- [ ] Set the absolute `og:image` / `twitter:image` URL in `index.html` to the production domain.
 
 ## Project structure
 

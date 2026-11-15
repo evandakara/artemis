@@ -393,8 +393,112 @@ html.lenis, html.lenis body { height: auto; }
 .tab-panel-in { animation: panelIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); }
 @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+/* Ember glow around the command-center buttons: the halo swells and the button itself
+   brightens and dims, on a 2.6 s breath. */
+.cta-glow { animation: ctaGlow 2.6s ease-in-out infinite; }
+@keyframes ctaGlow {
+  0%, 100% {
+    filter: brightness(0.9) saturate(0.95);
+    box-shadow: 0 0 8px 0 rgba(230, 148, 48, 0.25), 0 8px 24px -10px rgba(158, 67, 36, 0.6);
+  }
+  50% {
+    filter: brightness(1.18) saturate(1.1);
+    box-shadow: 0 0 34px 6px rgba(255, 170, 70, 0.62), 0 0 10px 1px rgba(255, 214, 160, 0.45), 0 8px 24px -10px rgba(158, 67, 36, 0.6);
+  }
+}
+
+/* Hero sky: each star brightens and dims on its own slow cycle (duration/delay set inline). */
+.hero-star { opacity: calc(var(--star-peak, 0.5) * 0.3); animation-name: starTwinkle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+@keyframes starTwinkle {
+  0%, 100% { opacity: calc(var(--star-peak, 0.5) * 0.18); }
+  50% { opacity: var(--star-peak, 0.5); }
+}
+
+/* Impact Hub micro-motion: tooltips, live dots, new messages, meters, the escrow
+   stepper, month bars and status toggles. All of it is off under reduced motion. */
+.tip-in { animation: tipIn 0.16s ease-out; }
+@keyframes tipIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+.live-dot { animation: liveDot 2s ease-in-out infinite; }
+@keyframes liveDot { 0%, 100% { box-shadow: 0 0 0 0 rgba(110, 231, 183, 0.55); } 60% { box-shadow: 0 0 0 4px rgba(110, 231, 183, 0); } }
+.msg-in { animation: msgIn 0.32s cubic-bezier(0.2, 0.75, 0.15, 1) both; }
+.msg-in-right { animation: msgInRight 0.32s cubic-bezier(0.2, 0.75, 0.15, 1) both; }
+@keyframes msgIn { from { opacity: 0; transform: translate(-8px, 4px); } to { opacity: 1; transform: none; } }
+@keyframes msgInRight { from { opacity: 0; transform: translate(8px, 4px); } to { opacity: 1; transform: none; } }
+.meter-fill { transform-origin: left center; animation: meterFill 0.9s cubic-bezier(0.2, 0.75, 0.15, 1) both; }
+@keyframes meterFill { from { transform: scaleX(0); } }
+.bar-grow { transform-origin: bottom center; animation: barGrow 0.6s cubic-bezier(0.2, 0.75, 0.15, 1) both; }
+@keyframes barGrow { from { transform: scaleY(0.15); opacity: 0.3; } }
+.pop-in { animation: popIn 0.28s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+@keyframes popIn { from { transform: scale(0.85); opacity: 0.4; } }
+.kpi-tile { position: relative; overflow: hidden; }
+.kpi-tile::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.06) 50%, transparent 65%);
+  transform: translateX(-100%); animation: kpiSheen 1.4s ease-out 0.35s both;
+}
+@keyframes kpiSheen { to { transform: translateX(100%); } }
+
+/* Impact Hub "Take action" card: an ember border whose halo breathes on a slow cycle,
+   so the one place to act is the first thing the eye finds. */
+.action-glow.action-glow {
+  border-color: rgba(230, 148, 48, 0.42);
+  background: linear-gradient(180deg, rgba(230, 148, 48, 0.07) 0%, rgba(17, 17, 17, 1) 38%);
+  animation: actionGlow 3.2s ease-in-out infinite;
+}
+@keyframes actionGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(230, 148, 48, 0.08), 0 0 16px -6px rgba(230, 148, 48, 0.3); }
+  50% { box-shadow: 0 0 0 1px rgba(255, 170, 70, 0.35), 0 0 36px 0 rgba(230, 148, 48, 0.32), 0 0 10px -2px rgba(255, 214, 160, 0.25); }
+}
+/* A soft ring that ripples out of the selected action tab twice when it is chosen. */
+.action-ping { animation: actionPing 1.1s ease-out 2; }
+@keyframes actionPing {
+  0% { box-shadow: 0 0 0 0 rgba(230, 148, 48, 0.55); }
+  100% { box-shadow: 0 0 0 8px rgba(230, 148, 48, 0); }
+}
+
+/* About modal: content rises in on a stagger (delay in --d), the step line draws across,
+   and each step number pulses once as the line reaches it. */
+.about-rise { animation: aboutRise 0.6s cubic-bezier(0.2, 0.75, 0.15, 1) var(--d, 0ms) both; }
+@keyframes aboutRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.about-draw { transform-origin: left center; animation: aboutDraw 1.4s cubic-bezier(0.45, 0, 0.2, 1) 0.8s both; }
+@keyframes aboutDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.about-step { animation: aboutStep 0.9s ease-out both; }
+@keyframes aboutStep {
+  0% { box-shadow: 0 0 0 0 rgba(230, 148, 48, 0.7); transform: scale(0.85); }
+  35% { transform: scale(1.08); }
+  100% { box-shadow: 0 0 0 10px rgba(230, 148, 48, 0); transform: scale(1); }
+}
+
+/* About modal tab switch: a long day/night-style toggle. A dotted dark track and a glossy
+   ember thumb with the same dot grid; the thumb slides with a slight overshoot. */
+.about-switch {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.09) 1px, transparent 1.4px) 0 0 / 7px 7px,
+    linear-gradient(180deg, #08080a 0%, #17120e 100%);
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.about-switch-thumb {
+  background:
+    radial-gradient(circle, rgba(255, 238, 214, 0.24) 1px, transparent 1.5px) 0 0 / 6px 6px,
+    radial-gradient(120% 150% at 28% 18%, #ffd9a6 0%, #f2a650 26%, #d9831c 54%, #9e4324 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 0 -4px 9px rgba(80, 25, 5, 0.45), 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(230, 148, 48, 0.3);
+  transition: transform 0.55s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+/* Satellite hero: each phrase bobs on its own phase; the dashed orbit line drifts. */
+.about-bob { animation: aboutBob 6.5s ease-in-out infinite; }
+@keyframes aboutBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.about-orbit { animation: aboutOrbit 18s linear infinite; }
+@keyframes aboutOrbit { to { stroke-dashoffset: -180; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track, .page-stage, .page-stage.is-exiting, .smoke-veil, .tab-panel-in, .display-sweep, .display-sweep-ember, .hub-cta, .hex-field, .smoke-plume, .footer-smoke, .loop-progress { animation: none !important; }
+  .about-rise, .about-draw, .about-step, .about-bob, .about-orbit { animation: none !important; }
+  .about-switch-thumb { transition: none; }
+  .action-glow.action-glow { animation: none; box-shadow: 0 0 24px -4px rgba(230, 148, 48, 0.32); }
+  .action-ping { animation: none !important; }
+  .tip-in, .live-dot, .msg-in, .msg-in-right, .meter-fill, .bar-grow, .pop-in, .kpi-tile::after { animation: none !important; }
+  .cta-glow { box-shadow: 0 0 20px 3px rgba(230, 148, 48, 0.42); }
+  .hero-star { opacity: calc(var(--star-peak, 0.5) * 0.6); }
+  .ticker-track, .page-stage, .page-stage.is-exiting, .smoke-veil, .tab-panel-in, .display-sweep, .display-sweep-ember, .hub-cta, .hex-field, .smoke-plume, .footer-smoke, .loop-progress, .cta-glow, .hero-star { animation: none !important; }
   .smoke-veil { display: none; }
   .chart-draw path[data-draw], .grow-bars [data-bar], .slide-marks [data-mark], .slide-marks [data-fill] { transition: none !important; stroke-dashoffset: 0 !important; transform: none !important; opacity: 1 !important; }
 }

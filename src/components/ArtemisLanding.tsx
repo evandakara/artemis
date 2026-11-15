@@ -6,7 +6,8 @@ import { DEFAULT_EARTH, type EarthTuning } from '@/components/landing/earthTunin
 import { EmberField } from '@/components/landing/EmberField';
 import { LandingAtmosphere } from '@/components/landing/LandingAtmosphere';
 import { LandingFooter } from '@/components/landing/LandingFooter';
-import artemisWordmarkLight from '@/logo & team/artemis-wordmark-light.png';
+import { LandingHeader } from '@/components/landing/LandingHeader';
+import { HeroStars } from '@/components/landing/HeroStars';
 import { cn } from '@/lib/utils';
 import { useInView } from '@/lib/useInView';
 import { fetchHistoryMeta, type HistoryMeta } from '@/data/historyApi';
@@ -149,30 +150,17 @@ export function ArtemisLanding({ onEnterConsole, onOpenAbout, onOpen, news }: Ar
   }, []);
 
   return (
-    <div ref={rootRef} className="min-h-screen overflow-hidden bg-karhutla-paper text-neutral-900">
-      <header className="relative z-20 border-b border-white/10 bg-[#070504]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8">
-          <button onClick={onOpenAbout} className="flex items-center gap-3 text-left" aria-label="About Artemis">
-            <img src={artemisWordmarkLight} alt="Artemis" width={1200} height={326} className="h-8 w-auto sm:h-9" />
-          </button>
-          <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">
-            <button onClick={() => onOpen('/audit')} className="hidden rounded-[6px] px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-white/70 transition-colors hover:text-white sm:block">
-              EUDR audit
-            </button>
-            <button onClick={onOpenAbout} className="rounded-[6px] px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-white/70 transition-colors hover:text-white">
-              About
-            </button>
-            <button onClick={onEnterConsole} className="ml-1 rounded-[6px] bg-accent-500 px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-karhutla-smoke transition-colors hover:bg-accent-400">
-              Console
-            </button>
-          </nav>
-        </div>
-      </header>
+    // overflow-x-clip (not overflow-hidden): clips sideways bleed without breaking the sticky header.
+    <div ref={rootRef} className="min-h-screen overflow-x-clip bg-karhutla-paper text-neutral-900">
+      <LandingHeader onEnterConsole={onEnterConsole} onOpenAbout={onOpenAbout} onOpen={onOpen} />
 
       <main>
         {/* Orbit hero: a dark stage, the live count of today's detections, and the Earth rising
             as a huge spinning horizon with every fire burning on it as neon pixels. */}
-        <section data-hero className="hero-orbit relative isolate flex min-h-[calc(100svh-4.25rem)] flex-col overflow-hidden text-white">
+        {/* Pulled up under the sticky header (-mt/pt of its height) so the space backdrop and
+            stars run behind the translucent bar instead of the paper background. */}
+        <section data-hero className="hero-orbit relative isolate -mt-[4.25rem] flex min-h-[100svh] flex-col overflow-hidden pt-[4.25rem] text-white">
+          <HeroStars />
           <div className="relative z-[2] mx-auto flex w-full max-w-[1440px] flex-1 flex-col items-center px-5 pb-[30vh] pt-10 text-center sm:px-8 sm:pt-12 lg:pb-[31vh]">
             <h1 className="font-display text-[clamp(1.85rem,4.4vw,4.6rem)] font-bold leading-[1.06] [text-shadow:0_2px_24px_#070504]">
               <span data-split-hero className="block">Wildfire signals are everywhere.</span>
@@ -180,11 +168,12 @@ export function ArtemisLanding({ onEnterConsole, onOpenAbout, onOpen, news }: Ar
             </h1>
             {/* Set like the command center's readouts: JetBrains Mono, tight and technical. */}
             <p data-hero-fade className="mt-6 max-w-[46rem] font-mono text-[13px] leading-6 tracking-[0.01em] text-white/70 [text-shadow:0_1px_12px_#070504] sm:text-[14px] sm:leading-[1.7]">
-              <span className="text-accent-300">&gt;</span> Twenty-six years of NASA fire detections over Indonesia, put on one scale. Artemis shows which months
-              are unusual, which places burn again and again, and what anyone can do about a hotspot today.
+              <span className="text-accent-300">&gt;</span> Originating from Indonesia&rsquo;s fire crisis, Artemis is growing into a global fire
+              intelligence system: live NASA fire detections worldwide, twenty-six years of Indonesian records on one scale,
+              and an action anyone can take for every hotspot.
             </p>
             <div data-hero-fade className="mt-7 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-              <button onClick={onEnterConsole} className={primaryBtn}>
+              <button onClick={onEnterConsole} className={cn(primaryBtn, 'cta-glow')}>
                 Launch command center <ArrowRight className="h-4 w-4" />
               </button>
               <button onClick={() => onOpen('/audit')} className={secondaryBtnDark}>
@@ -235,7 +224,7 @@ export function ArtemisLanding({ onEnterConsole, onOpenAbout, onOpen, news }: Ar
         <TelemetryStrip />
         <FeaturePreviews onOpen={onOpen} />
 
-        <section className="flow-solves grain relative">
+        <section id="solutions" data-header-tone="light" className="flow-solves grain relative scroll-mt-[4.25rem]">
           <div data-heat aria-hidden className="pointer-events-none absolute inset-0 opacity-0" style={{ background: 'radial-gradient(70% 40% at 30% 100%, rgba(230,148,48,0.7), transparent 70%)' }} />
           <div className="relative z-[2] mx-auto max-w-[1440px] px-5 pb-28 pt-14 sm:px-8 lg:pb-36 lg:pt-20">
             <SectionRule index="03" label="What Artemis solves" />
@@ -296,7 +285,7 @@ export function ArtemisLanding({ onEnterConsole, onOpenAbout, onOpen, news }: Ar
         </section>
 
         {news && (
-          <section aria-labelledby="field-reporting" className="flow-news grain relative overflow-hidden text-white">
+          <section id="news" data-header-tone="light" data-header-tone-split="0.5" aria-labelledby="field-reporting" className="flow-news grain relative scroll-mt-[4.25rem] overflow-hidden text-white">
             <EmberField sparks={false} className="z-[1]" />
             {/* Feathers the grain and plumes into the footer's smoke, so the seam is a gradient, not a line. */}
             <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-28 bg-gradient-to-b from-transparent to-karhutla-smoke" />
