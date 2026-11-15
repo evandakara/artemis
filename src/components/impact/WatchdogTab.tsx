@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { FileDown, FileText, Lock, Plus, Trash2 } from 'lucide-react';
+import { Check, FileDown, FileText, Lock, LockOpen, Plus, Trash2 } from 'lucide-react';
 
 import { collectDetections, dossierCsv, dossierHtml, type DossierInput } from '@/lib/dossier';
 import { downloadText } from '@/lib/csvExport';
@@ -7,12 +7,12 @@ import { readLocal, writeLocal } from '@/lib/localStore';
 import { cn } from '@/lib/utils';
 import type { FireHotspot } from '@/types';
 import { DOSSIER_PERCENTILE, type HubContext } from './hubContext';
-import { btnGhost, btnPrimary, Hint, LiveTag, Panel, SimTag } from './shared';
+import { btnGhost, btnPrimary, LiveTag, Panel, SimTag } from './shared';
 
 interface Need {
   id: string;
   label: string;
-  status: 'needed' | 'pledged' | 'delivered';
+  status: 'needed' | 'pledged';
 }
 
 const DEFAULT_NEEDS: Omit<Need, 'id'>[] = [
@@ -22,12 +22,8 @@ const DEFAULT_NEEDS: Omit<Need, 'id'>[] = [
   { label: '200 L pump fuel', status: 'needed' },
   { label: 'Field first-aid kits', status: 'needed' },
 ];
-const NEXT: Record<Need['status'], Need['status']> = { needed: 'pledged', pledged: 'delivered', delivered: 'needed' };
-const STATUS_STYLE: Record<Need['status'], string> = {
-  needed: 'border-[#fdba74]/40 text-[#fdba74]',
-  pledged: 'border-[#7dd3fc]/40 text-[#7dd3fc]',
-  delivered: 'border-[#6ee7b7]/40 text-[#6ee7b7]',
-};
+/** Older saved boards may hold a third "delivered" state; it reads as pledged. */
+const normalize = (needs: Need[]): Need[] => needs.map((n) => (n.status === 'needed' ? n : { ...n, status: 'pledged' }));
 
 function DossierPanel({ ctx, liveHotspots }: { ctx: HubContext; liveHotspots: FireHotspot[] }) {
   const f = ctx.forensic.data;
@@ -84,22 +80,40 @@ function DossierPanel({ ctx, liveHotspots }: { ctx: HubContext; liveHotspots: Fi
   };
 
   return (
-    <Panel title="Civic watchdog dossier" tag={<LiveTag>Archive + NRT</LiveTag>}>
-      <Hint>
-        A neutral evidence file for Gakkum KLHK or SP4N-LAPOR!: coordinates, the 20-year anomaly record, detections and the four signature features. It reports observations, not who started a fire.
-      </Hint>
-      <div className={cn('mt-3 rounded-[4px] border px-3 py-2.5 text-[12px] leading-5', unlocked ? 'border-[#fca5a5]/30 bg-[#fca5a5]/[0.05] text-white/80' : 'border-white/[0.12] text-white/65')}>
-        {ctx.forensic.status === 'loading' && 'Reading the signature…'}
-        {(ctx.forensic.status === 'none' || ctx.forensic.status === 'error') && 'This cell has too little fire history to score, so no dossier can be generated.'}
-        {f && (
-          <>
-            Unlocks for the top {100 - DOSSIER_PERCENTILE}% of Indonesian fire cells (percentile ≥ {DOSSIER_PERCENTILE}). This cell is at{' '}
-            <strong className={unlocked ? 'text-[#fca5a5]' : 'text-white/85'}>p{Math.round(f.percentile)}</strong> with a score of {Math.round(f.score)}.{' '}
-            {!unlocked && 'Use the citizen ground-truth tab to add field labels instead.'}
-          </>
-        )}
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+    <Panel
+      title="Civic watchdog dossier"
+      info={
+        <>
+          A neutral evidence file for Gakkum KLHK or SP4N-LAPOR!: coordinates, the 20-year anomaly record, detections and the four signature features. It reports observations, never who started a fire. It unlocks for the top {100 - DOSSIER_PERCENTILE}% of Indonesian fire cells. The PDF opens as a printable page: use “Print / save as PDF”.
+        </>
+      }
+      tag={<LiveTag>Archive + NRT</LiveTag>}
+    >
+      {ctx.forensic.status === 'loading' && <p className="text-[12px] text-white/55">Reading the signature…</p>}
+      {(ctx.forensic.status === 'none' || ctx.forensic.status === 'error') && (
+        <p className="text-[12px] text-white/60">
+          {ctx.archive === 'outside' ? 'Dossiers cover Indonesian fire cells only.' : 'Too little fire history here to build a dossier.'}
+        </p>
+      )}
+      {f && (
+        <div>
+          <div className="flex items-baseline justify-between gap-2 text-[12px]">
+            <span className="text-white/60">National rank</span>
+            <span className={cn('font-mono font-semibold tabular-nums', unlocked ? 'text-[#fca5a5]' : 'text-white/85')}>
+              p{Math.round(f.percentile)} <span className="font-normal text-white/45">/ needs p{DOSSIER_PERCENTILE}</span>
+            </span>
+          </div>
+          <div className="relative mt-2 h-2 rounded-full bg-white/[0.07]" role="img" aria-label={`Rank p${Math.round(f.percentile)}; the dossier unlocks at p${DOSSIER_PERCENTILE}`}>
+            <span className={cn('meter-fill absolute inset-y-0 left-0 rounded-full', unlocked ? 'bg-[#fca5a5]' : 'bg-white/40')} style={{ width: `${f.percentile}%` }} />
+            <span className="absolute -top-1 bottom-[-4px] w-[2px] rounded bg-accent-300" style={{ left: `${DOSSIER_PERCENTILE}%` }} aria-hidden />
+          </div>
+          <p className={cn('mt-2 flex items-center gap-1.5 text-[12px]', unlocked ? 'text-[#fca5a5]' : 'text-white/55')}>
+            {unlocked ? <LockOpen className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+            {unlocked ? 'Unlocked: this spot is in the top 10%.' : 'Locked. Add field reports in tab 02 instead.'}
+          </p>
+        </div>
+      )}
+      <div className="mt-4 flex flex-wrap gap-2">
         <button type="button" className={btnPrimary} disabled={!unlocked || busy !== null} onClick={makePdf}>
           {unlocked ? <FileText className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} {busy === 'pdf' ? 'Building…' : 'Generate evidence dossier (PDF)'}
         </button>
@@ -108,7 +122,6 @@ function DossierPanel({ ctx, liveHotspots }: { ctx: HubContext; liveHotspots: Fi
         </button>
       </div>
       {error && <p className="mt-2 text-[12px] text-[#fca5a5]">{error}</p>}
-      <p className="mt-2 text-[11px] leading-4 text-white/55">The PDF opens as a printable page: use “Print / save as PDF”.</p>
     </Panel>
   );
 }
@@ -116,9 +129,11 @@ function DossierPanel({ ctx, liveHotspots }: { ctx: HubContext; liveHotspots: Fi
 function P2PBoard({ cell }: { cell: string }) {
   const key = `artemis:p2p:${cell}`;
   const seed = () => DEFAULT_NEEDS.map((n, i) => ({ ...n, id: `seed-${i}` }));
-  const [needs, setNeeds] = useState<Need[]>(() => readLocal<Need[] | null>(key, null) ?? seed());
+  const load = () => normalize(readLocal<Need[] | null>(key, null) ?? seed());
+  const [needs, setNeeds] = useState<Need[]>(load);
   const [draft, setDraft] = useState('');
-  useEffect(() => setNeeds(readLocal<Need[] | null>(key, null) ?? seed()), [key]);
+  useEffect(() => setNeeds(load()), [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pledged = needs.filter((n) => n.status === 'pledged').length;
 
   const update = (next: Need[]) => {
     setNeeds(next);
@@ -133,27 +148,47 @@ function P2PBoard({ cell }: { cell: string }) {
   };
 
   return (
-    <Panel title="P2P logistics board" tag={<SimTag kind="Demo" />}>
-      <Hint>Field teams list physical needs; nearby universities, Mapala groups and pharmacies pledge and deliver directly. Stored in this browser only.</Hint>
-      <ul className="mt-3 divide-y divide-white/[0.06]">
-        {needs.map((n) => (
+    <Panel
+      title="P2P logistics board"
+      tag={<SimTag kind="Demo" info="Field teams list what they physically need; nearby universities, student nature clubs (Mapala) and pharmacies pledge and deliver directly. Click a status to switch it. Saved in this browser only." />}
+    >
+      <div className="flex items-center gap-2">
+        <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.07]" aria-hidden>
+          <span className="block h-full rounded-full bg-[#7dd3fc] transition-[width] duration-500 ease-out" style={{ width: `${needs.length ? (pledged / needs.length) * 100 : 0}%` }} />
+        </span>
+        <span className="font-mono text-[10px] tabular-nums text-white/55">
+          {pledged}/{needs.length} pledged
+        </span>
+      </div>
+      <ul className="mt-2 divide-y divide-white/[0.06]">
+        {needs.map((n) => {
+          const on = n.status === 'pledged';
+          return (
           <li key={n.id} className="flex items-center justify-between gap-3 py-2">
-            <span className={cn('text-[13px]', n.status === 'delivered' ? 'text-white/55 line-through' : 'text-white/85')}>{n.label}</span>
+            <span className={cn('text-[13px] transition-colors', on ? 'text-white/55' : 'text-white/85')}>{n.label}</span>
             <span className="flex shrink-0 items-center gap-1">
               <button
+                key={n.status}
                 type="button"
-                onClick={() => update(needs.map((x) => (x.id === n.id ? { ...x, status: NEXT[x.status] } : x)))}
-                className={cn('rounded-[2px] border px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.1em]', STATUS_STYLE[n.status])}
-                aria-label={`${n.label}: ${n.status}. Change status`}
+                role="switch"
+                aria-checked={on}
+                aria-label={`${n.label}: ${on ? 'pledged' : 'needed'}`}
+                onClick={() => update(needs.map((x) => (x.id === n.id ? { ...x, status: on ? 'needed' : 'pledged' } : x)))}
+                className={cn(
+                  'pop-in flex w-[5.5rem] items-center justify-center gap-1 rounded-full border px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] transition-colors',
+                  on ? 'border-[#7dd3fc]/45 bg-[#7dd3fc]/10 text-[#7dd3fc] hover:bg-[#7dd3fc]/15' : 'border-[#fdba74]/45 text-[#fdba74] hover:bg-[#fdba74]/10',
+                )}
               >
-                {n.status}
+                {on && <Check className="h-3 w-3" strokeWidth={3} />}
+                {on ? 'Pledged' : 'Needed'}
               </button>
               <button type="button" onClick={() => update(needs.filter((x) => x.id !== n.id))} aria-label={`Remove ${n.label}`} className="rounded-[4px] p-1.5 text-white/55 hover:bg-white/[0.06] hover:text-white">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </span>
           </li>
-        ))}
+          );
+        })}
       </ul>
       <form onSubmit={add} className="mt-3 flex gap-2">
         <label htmlFor="need-input" className="sr-only">New need</label>

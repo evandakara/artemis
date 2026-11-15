@@ -170,6 +170,32 @@ Server-side variables are read only by the `/api/*` functions (and the Vite dev 
 
 Alternatives to the Git route: the Pro plan, or shrinking the archive under 100 MB (for example by gzipping the `hex/` and `forensics/` JSON as the point files already are) and deploying with `vercel --prod`.
 
+**The GitHub Actions workflow** (`.github/workflows/main.yml`) is a second deploy path: on every push to `main` it builds with the Vercel CLI and uploads the result with `vercel deploy --prebuilt --prod`, using the `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` repository secrets. That upload goes through the CLI, so it is subject to the same Hobby upload limit as `vercel --prod`. If the Vercel Git integration is connected, the workflow is redundant and can be removed.
+
+### Live data on the deployed site
+
+Nothing needs redeploying for the data to stay current. The live layers are fetched at request time by the `/api/*` functions, and Vercel's edge caches each response for a short window:
+
+| Route | Source | Edge cache |
+|---|---|---|
+| `/api/firms` | NASA FIRMS NRT detections, worldwide | 15 min |
+| `/api/weather` | OpenWeatherMap current weather | 10 min |
+| `/api/news` | NewsData.io wildfire headlines | 30 min |
+| `/api/tle` | CelesTrak orbital elements for NOAA-20 / NOAA-21 | 6 h |
+
+The browser also keeps the FIRMS and news responses for 30 minutes, so an open tab shows new detections after a reload once that window passes. FIRMS itself publishes NRT detections roughly three hours after each satellite pass. Only the 26-year harmonized archive in `public/data/` (Indonesia) is static; it changes when the pipeline is re-run and the result is committed.
+
+Changing a key in **Settings → Environment Variables** takes effect on the next deployment (Vercel → Deployments → ⋯ → Redeploy), not on the running one.
+
+### Deploy checklist
+
+- [ ] Vercel project imported from `evandakara/artemis`, preset Vite.
+- [ ] `FIRMS_API_KEY` and `OPENWEATHER_API_KEY` set for Production and Preview; `NEWSDATA_API_KEY` too if the news strip should show headlines.
+- [ ] `VITE_CARTO_API_KEY` set if you want the CARTO basemap (otherwise Esri's keyless one is used). `VITE_*` values are baked in at build time, so redeploy after changing them.
+- [ ] After deploying, open `https://<your-domain>/api/firms?product=VIIRS_NOAA21_NRT&area=world&days=1` and `/api/weather?lat=-0.5&lon=101.4`: both should return 200 with data, not a "not configured" message.
+- [ ] Open `/dashboard` and confirm live hotspots appear on the map.
+- [ ] Set the absolute `og:image` / `twitter:image` URL in `index.html` to the production domain.
+
 ## Project structure
 
 ```

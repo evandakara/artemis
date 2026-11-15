@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, X } from 'lucide-react';
 
@@ -11,6 +11,8 @@ import { EscrowTab } from './EscrowTab';
 import { GroundTruthTab } from './GroundTruthTab';
 import { HazeShieldTab, type HazeCone } from './HazeShieldTab';
 import { WatchdogTab } from './WatchdogTab';
+import { InfoTip } from './shared';
+import { useCountUp } from './useCountUp';
 
 export type HubTab = 'escrow' | 'ground' | 'haze' | 'watchdog';
 
@@ -36,13 +38,55 @@ interface Props {
   onViewLocation?: (lat: number, lng: number, zoom: number) => void;
 }
 
-function Chip({ label, value, tone }: { label: string; value: string; tone?: string }) {
+const HOT = '#fca5a5';
+const WARM = '#fdba74';
+
+/** One headline number: small label, large value, plain-language caption, optional meter. */
+function Kpi({
+  label,
+  info,
+  value,
+  unit,
+  caption,
+  color,
+  meter,
+}: {
+  label: string;
+  info?: ReactNode;
+  value: string;
+  unit?: string;
+  caption: string;
+  color?: string;
+  /** 0–1 fill for the thin meter under the value. */
+  meter?: number | null;
+}) {
   return (
-    <div className="bg-[#0f0f0f] px-3 py-2">
-      <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/55">{label}</dt>
-      <dd className={cn('mt-0.5 font-mono text-[13px] tabular-nums text-white/90', tone)}>{value}</dd>
+    <div className="kpi-tile bg-[linear-gradient(180deg,#171717_0%,#0f0f0f_100%)] px-3.5 pb-3 pt-2.5">
+      <dt className="flex items-center gap-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-white/55">
+        {label}
+        {info && <InfoTip label={`About ${label.toLowerCase()}`}>{info}</InfoTip>}
+      </dt>
+      <dd className="mt-1.5">
+        <span className="font-sans text-[26px] font-semibold leading-none tabular-nums tracking-tight" style={{ color: color ?? 'rgba(255,255,255,0.95)' }}>
+          {value}
+        </span>
+        {unit && <span className="ml-1 font-mono text-[11px] text-white/50">{unit}</span>}
+        {meter != null && (
+          <span className="mt-2 block h-[3px] overflow-hidden rounded-full bg-white/[0.08]" aria-hidden>
+            <span className="meter-fill block h-full rounded-full" style={{ width: `${Math.max(2, Math.min(100, meter * 100))}%`, backgroundColor: color ?? '#d9831c' }} />
+          </span>
+        )}
+        <span className="mt-1.5 block text-[11px] leading-4 text-white/55 sm:truncate">{caption}</span>
+      </dd>
     </div>
   );
+}
+
+function anomalyWords(z: number): string {
+  if (z >= 1.5) return 'well above normal';
+  if (z >= 0.5) return 'above normal';
+  if (z > -0.5) return 'about normal';
+  return 'below normal';
 }
 
 const EASE_OUT = 'cubic-bezier(0.2, 0.75, 0.15, 1)';
@@ -109,6 +153,11 @@ export function ImpactHub({ target, liveHotspots, variant, initialTab = 'escrow'
   const f = ctx.forensic.data;
   const z = ctx.monthRecord?.z ?? null;
   const live = target.live;
+  const frp = useCountUp(live ? live.frp : null);
+  const zShown = useCountUp(z);
+  const scoreShown = useCountUp(f ? f.score : null);
+  const pctShown = useCountUp(f ? f.percentile : null);
+  const outside = ctx.archive === 'outside';
   const permalink = `/impact?lat=${target.lat.toFixed(4)}&lng=${target.lng.toFixed(4)}${target.archive ? `&month=${target.archive.year}-${String(target.archive.month).padStart(2, '0')}` : ''}`;
 
   const body = (
@@ -122,7 +171,7 @@ export function ImpactHub({ target, liveHotspots, variant, initialTab = 'escrow'
             </h2>
             <p className="mt-0.5 font-mono text-[11px] tabular-nums text-white/55">
               {target.lat.toFixed(4)}, {target.lng.toFixed(4)}
-              {ctx.place?.includes(ctx.calendarRegion.name) ? '' : ` · ${ctx.calendarRegion.name}`}
+              {ctx.country && !ctx.place?.includes(ctx.country) ? ` · ${ctx.country}` : ''}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
@@ -138,19 +187,54 @@ export function ImpactHub({ target, liveHotspots, variant, initialTab = 'escrow'
             )}
           </div>
         </div>
-        <dl className="mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-[4px] border border-white/[0.12] bg-white/[0.08] sm:grid-cols-4">
-          <Chip label={live ? 'Live FRP' : 'Archive cell-days'} value={live ? `${live.frp.toFixed(1)} MW` : target.archive?.value ? target.archive.value.toFixed(1) : '—'} />
-          <Chip
-            label={`Anomaly · ${MONTH_LABELS[ctx.month.month - 1]} ${ctx.month.year}`}
-            value={z === null ? (ctx.months.length ? 'no spread' : '…') : `${z >= 0 ? '+' : ''}${z.toFixed(2)} σ`}
-            tone={z !== null && z >= 1.5 ? 'text-[#fca5a5]' : undefined}
+        <dl className="mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-[6px] border border-white/[0.14] bg-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:grid-cols-4">
+          {live ? (
+            <Kpi label="Fire power now" value={(frp ?? 0).toFixed(1)} unit="MW" caption={`${live.satellite ?? live.source} · ${live.confidence}% confidence`} color={live.frp >= 20 ? HOT : WARM} />
+          ) : (
+            <Kpi
+              label={target.archive?.value ? 'Archive cell-days' : 'Fire power now'}
+              value={target.archive?.value ? target.archive.value.toFixed(1) : '—'}
+              caption={target.archive?.value ? `${MONTH_LABELS[target.archive.month - 1]} ${target.archive.year}` : 'No live detection here today'}
+            />
+          )}
+          <Kpi
+            label="Anomaly"
+            info={
+              <>
+                How unusual fire activity in {outside ? 'the region' : ctx.calendarRegion.name} is this month compared with the same month in 2001–2025. Worked out as (month − median) ÷ IQR. <strong className="text-white">+1.5 or more</strong> counts as abnormal.
+                {outside && ` The 26-year harmonized archive covers Indonesia only, so there is no baseline for ${ctx.country ?? 'this country'}.`}
+              </>
+            }
+            value={outside ? 'n/a' : zShown === null ? (ctx.months.length ? '—' : '…') : `${zShown >= 0 ? '+' : ''}${zShown.toFixed(2)}`}
+            unit={z === null ? undefined : 'σ'}
+            caption={
+              outside
+                ? 'Fire history covers Indonesia only'
+                : `${MONTH_LABELS[ctx.month.month - 1]} ${ctx.month.year} · ${z === null ? (ctx.months.length ? 'too little variation to compare' : 'loading') : anomalyWords(z)}`
+            }
+            color={z !== null && z >= 1.5 ? HOT : z !== null && z >= 0.5 ? WARM : undefined}
           />
-          <Chip label="Signature score" value={f ? `${Math.round(f.score)} / 100` : ctx.forensic.status === 'loading' ? '…' : 'n/a'} />
-          <Chip label="National percentile" value={f ? `p${Math.round(f.percentile)}` : ctx.forensic.status === 'loading' ? '…' : 'n/a'} tone={f && f.percentile >= 90 ? 'text-[#fca5a5]' : undefined} />
+          <Kpi
+            label="Signature score"
+            info={
+              <>
+                A rule-based 0–100 score of how much the fire pattern here looks human-driven, from four features: burning that recurs over the years, burning outside the fire season, line-shaped clusters, and afternoon timing. <strong className="text-white">It is not a probability</strong> and never says who started a fire.
+              </>
+            }
+            value={scoreShown === null ? (ctx.forensic.status === 'loading' && !outside ? '…' : 'n/a') : String(Math.round(scoreShown))}
+            unit={f ? '/ 100' : undefined}
+            caption={f ? 'Rule-based pattern score' : outside ? 'Scored for Indonesia only' : 'Too little fire history to score'}
+            meter={f ? f.score / 100 : null}
+            color={f && f.percentile >= 90 ? HOT : undefined}
+          />
+          <Kpi
+            label="National rank"
+            value={pctShown === null ? (ctx.forensic.status === 'loading' && !outside ? '…' : 'n/a') : `p${Math.round(pctShown)}`}
+            caption={f ? `Higher than ${Math.round(f.percentile)}% of Indonesian fire cells` : outside ? 'Ranked within Indonesia only' : 'Not ranked'}
+            meter={f ? f.percentile / 100 : null}
+            color={f && f.percentile >= 90 ? HOT : undefined}
+          />
         </dl>
-        <p className="mt-2 text-[11px] leading-4 text-white/55">
-          Anomaly = (month − median) / IQR for {ctx.calendarRegion.name}, 2001–2025 baseline. Signature is a rule-based anthropogenic thermal signature score, not a probability.
-        </p>
       </header>
 
       <div data-hub-stagger role="tablist" aria-label="Impact branches" className="flex gap-px overflow-x-auto border-b border-white/[0.1] bg-white/[0.06]">
