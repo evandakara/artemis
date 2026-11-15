@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2026 Artemis
+Copyright (c) 2026 Team Arek Artemis (ITS Surabaya)
+Contributors: Fadhil Mauludi, Ellvis Cornelius Setiawan, Desanda Verdely Yulisar, Evan Dakara Sukatrilaksana, Jonathan Itung, Muhammad Syamfiraas Akbar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +20,50 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+THIRD-PARTY DATA & SERVICE ATTRIBUTIONS
+================================================================================
+
+This project incorporates, processes, or interacts with data and services provided
+by external providers. Users and distributors of this software must adhere to the
+respective terms of service and licensing of these third parties:
+
+1. NASA FIRMS (Fire Information for Resource Management System)
+   - Data: MODIS C6.1 (Terra/Aqua), VIIRS 375m (Suomi-NPP, NOAA-20, NOAA-21)
+   - Credit: Courtesy of NASA Earthdata / LANCE / EOSDIS
+   - Website: https://firms.modaps.eosdis.nasa.gov/
+
+2. geoBoundaries (Runfola et al., 2020)
+   - Data: Administrative Boundary Polygons (gbOpen IDN ADM1)
+   - License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+   - Website: https://www.geoboundaries.org/
+
+3. OpenStreetMap
+   - Data: Nominatim (Geocoding), Overpass API (Schools & Healthcare Facilities)
+   - License: Open Data Commons Open Database License (ODbL) / © OpenStreetMap contributors
+   - Website: https://www.openstreetmap.org/
+   - Nominatim policy: https://operations.osmfoundation.org/policies/nominatim/
+   - Overpass API: https://wiki.openstreetmap.org/wiki/Overpass_API
+
+4. CARTO & Esri
+   - Data: CARTO Dark Matter Basemap Tiles / Esri World Dark Gray
+   - Credit: © CARTO, © Esri
+   - CARTO: https://carto.com/
+   - Esri: https://www.esri.com/
+
+5. OpenWeatherMap
+   - Data: Atmospheric Wind Vectors & Local Weather API
+   - Website: https://openweathermap.org/
+
+6. CelesTrak
+   - Data: NORAD Two-Line Element (TLE) Satellite Orbit Telemetry
+   - Website: https://celestrak.org/
+
+7. NewsData.io
+   - Data: Environmental & Wildfire News Headlines API
+   - Website: https://newsdata.io/
+
+8. Every.org
+   - Data: Nonprofit Discovery & Relief Donation Integration API
+   - Website: https://www.every.org/
