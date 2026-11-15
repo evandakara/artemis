@@ -74,10 +74,11 @@ export function LandingFooter({ onEnterConsole, onOpenAbout, onOpen }: Props) {
         {/* Brand block: its own row below xl, so the four columns never squeeze it. */}
         <div className="max-w-md sm:col-span-3 xl:col-span-1">
           <img src={artemisWordmarkLight} alt="Artemis" width={1200} height={326} className="h-9 w-auto object-contain" />
-          <p className="mt-4 font-display text-lg font-bold leading-snug">Fire intelligence for Global</p>
+          <p className="mt-4 font-display text-lg font-bold leading-snug">Global fire intelligence</p>
           <p className="mt-2 text-sm leading-6 text-white/75">
-            Twenty-six years of NASA MODIS and VIIRS fire detections on one scale: a burning calendar, hotspot
-            forensics, an EUDR audit and an impact hub that turns every hotspot into an action.
+            Born from Indonesia&rsquo;s karhutla crisis, built for the world: live NASA MODIS and VIIRS detections
+            worldwide, a 26-year harmonized Indonesian archive, hotspot forensics, an EUDR audit and an impact hub
+            that turns every hotspot into an action.
           </p>
           <button
             type="button"

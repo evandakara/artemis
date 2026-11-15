@@ -393,8 +393,31 @@ html.lenis, html.lenis body { height: auto; }
 .tab-panel-in { animation: panelIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); }
 @keyframes panelIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+/* Ember glow around the command-center buttons: the halo swells and the button itself
+   brightens and dims, on a 2.6 s breath. */
+.cta-glow { animation: ctaGlow 2.6s ease-in-out infinite; }
+@keyframes ctaGlow {
+  0%, 100% {
+    filter: brightness(0.9) saturate(0.95);
+    box-shadow: 0 0 8px 0 rgba(230, 148, 48, 0.25), 0 8px 24px -10px rgba(158, 67, 36, 0.6);
+  }
+  50% {
+    filter: brightness(1.18) saturate(1.1);
+    box-shadow: 0 0 34px 6px rgba(255, 170, 70, 0.62), 0 0 10px 1px rgba(255, 214, 160, 0.45), 0 8px 24px -10px rgba(158, 67, 36, 0.6);
+  }
+}
+
+/* Hero sky: each star brightens and dims on its own slow cycle (duration/delay set inline). */
+.hero-star { opacity: calc(var(--star-peak, 0.5) * 0.3); animation-name: starTwinkle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+@keyframes starTwinkle {
+  0%, 100% { opacity: calc(var(--star-peak, 0.5) * 0.18); }
+  50% { opacity: var(--star-peak, 0.5); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track, .page-stage, .page-stage.is-exiting, .smoke-veil, .tab-panel-in, .display-sweep, .display-sweep-ember, .hub-cta, .hex-field, .smoke-plume, .footer-smoke, .loop-progress { animation: none !important; }
+  .cta-glow { box-shadow: 0 0 20px 3px rgba(230, 148, 48, 0.42); }
+  .hero-star { opacity: calc(var(--star-peak, 0.5) * 0.6); }
+  .ticker-track, .page-stage, .page-stage.is-exiting, .smoke-veil, .tab-panel-in, .display-sweep, .display-sweep-ember, .hub-cta, .hex-field, .smoke-plume, .footer-smoke, .loop-progress, .cta-glow, .hero-star { animation: none !important; }
   .smoke-veil { display: none; }
   .chart-draw path[data-draw], .grow-bars [data-bar], .slide-marks [data-mark], .slide-marks [data-fill] { transition: none !important; stroke-dashoffset: 0 !important; transform: none !important; opacity: 1 !important; }
 }

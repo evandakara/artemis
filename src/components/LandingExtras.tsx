@@ -352,7 +352,7 @@ export function FeaturePreviews({ onOpen }: { onOpen: (path: string) => void }) 
   ];
 
   return (
-    <section data-embers-from className="thermal-field grain relative overflow-hidden">
+    <section id="platform" data-embers-from data-header-tone="light" className="thermal-field grain relative scroll-mt-[4.25rem] overflow-hidden">
       <div className="relative z-[2] mx-auto max-w-[1440px] px-5 pb-20 pt-24 sm:px-8 lg:pb-28 lg:pt-28">
         <SectionRule index="02" label="Inside Artemis" />
         <div className="mb-8 mt-10 max-w-3xl">

@@ -16,6 +16,9 @@ import artemisLogo from '@/logo & team/artemis-wordmark-light.png';
 import artemisPlaceholder from '@/logo & team/Artemis.jpg';
 import evanPhoto from '@/logo & team/Evan.png';
 import fadhilPhoto from '@/logo & team/Fadhil.png';
+import ellvisPhoto from '@/logo & team/Ellvis.png';
+import desandaPhoto from '@/logo & team/Desanda.png';
+import firaasPhoto from '@/logo & team/Firaas.png';
 import { cn } from '@/lib/utils';
 
 interface AboutModalProps {
@@ -33,11 +36,11 @@ const tabs: { id: AboutTab; label: string; number: string }[] = [
 
 const contributors = [
   { name: 'Fadhil Mauludi', handle: '@fadhilm', role: 'Team owner', photo: fadhilPhoto },
-  { name: 'Ellvis Cornelius Setiawan', handle: '@ellviscs', role: 'Contributor', photo: artemisPlaceholder },
-  { name: 'Desanda Verdely Yulisar', handle: '@mrpupperfish', role: 'Contributor', photo: artemisPlaceholder },
+  { name: 'Ellvis Cornelius Setiawan', handle: '@ellviscs', role: 'Contributor', photo: ellvisPhoto },
+  { name: 'Desanda Verdely Yulisar', handle: '@mrpupperfish', role: 'Contributor', photo: desandaPhoto },
   { name: 'Evan Dakara Sukatrilaksana', handle: '@evandakara', role: 'Contributor', photo: evanPhoto },
   { name: 'Jonathan Itung', handle: '@jonathanitung', role: 'Contributor', photo: artemisPlaceholder },
-  { name: 'Muhammad Syamfiraas Akbar', handle: '@firz', role: 'Contributor', photo: artemisPlaceholder },
+  { name: 'Muhammad Syamfiraas Akbar', handle: '@firz', role: 'Contributor', photo: firaasPhoto },
 ];
 
 const capabilities = [
