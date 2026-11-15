@@ -136,7 +136,10 @@ The demo audit plots, chosen from the processed data:
 | OpenStreetMap via Overpass API | Schools and health facilities in the haze cone | Browser, public endpoint |
 | OpenStreetMap Nominatim | Place names for hotspots | Browser, public endpoint |
 | CARTO basemaps | Dark map tiles | Browser |
+| Esri World Dark Gray Canvas | Fallback dark tiles when no CARTO key is set | Browser, keyless |
+| NASA Black Marble 2016 | Land dots on the landing-page globe | Bundled image |
 | Every.org | Global wildfire nonprofits | Browser (public partner key) |
+| Bing Web Search | Optional donation-discovery service (`services/donation-discovery`) | Server-side, optional |
 | geoBoundaries (CC BY 4.0) | Province polygons in the pipeline | Pipeline only |
 
 Map data © OpenStreetMap contributors, © CARTO. Fire data courtesy of NASA FIRMS (LANCE / EOSDIS).

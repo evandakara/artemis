@@ -43,10 +43,16 @@ export function LandingFooter({ onEnterConsole, onOpenAbout, onOpen }: Props) {
     ['How Artemis works', onOpenAbout],
   ];
   const data: [string, string][] = [
-    ['NASA FIRMS', 'https://firms.modaps.eosdis.nasa.gov/'],
+    ['NASA FIRMS Area API', 'https://firms.modaps.eosdis.nasa.gov/api/area/'],
     ['MODIS C6.1 · VIIRS 375 m', 'https://www.earthdata.nasa.gov/data/tools/firms'],
-    ['Black Marble (Earth at night)', 'https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/'],
+    ['NASA Black Marble 2016', 'https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/'],
+    ['CARTO basemaps', 'https://docs.carto.com/'],
     ['OpenStreetMap', 'https://www.openstreetmap.org/copyright'],
+    ['CelesTrak orbit data', 'https://celestrak.org/NORAD/documentation/gp-data-formats.php'],
+    ['OpenWeatherMap', 'https://openweathermap.org/api'],
+    ['NewsData.io', 'https://newsdata.io/documentation'],
+    ['Every.org', 'https://docs.every.org/docs/intro'],
+    ['Bing Web Search', 'https://learn.microsoft.com/en-us/python/api/overview/azure/cognitiveservices/bing-web-search-api-readme?view=azure-python'],
   ];
 
   return (

@@ -1,7 +1,7 @@
 // Landing header: wordmark left, centred uppercase section links, the glowing
 // "Command center" pill on the right. Sticky.
 //
-// Over the hero it is a solid dark bar. Once the hero has scrolled away it turns
+// Over the hero it is a faint smoked-glass bar; the hero's space backdrop runs under it. Once the hero has scrolled away it turns
 // transparent (a faint blur only) and adapts its ink to what is underneath: white over
 // dark surfaces, dark ink over the light paper sections. The tone is sampled under the
 // bar on scroll: the first ancestor with an opaque background colour decides (cards,
@@ -120,7 +120,7 @@ export function LandingHeader({ onEnterConsole, onOpenAbout, onOpen }: Props) {
       data-mode={mode}
       className={cn(
         'sticky top-0 z-30 border-b transition-[background-color,border-color] duration-300',
-        mode === 'solid' ? 'border-white/[0.08] bg-[#070504]/90 backdrop-blur-xl' : 'border-transparent bg-transparent backdrop-blur-[3px]',
+        mode === 'solid' ? 'border-white/[0.05] bg-[#070504]/25 backdrop-blur-md' : 'border-transparent bg-transparent backdrop-blur-[3px]',
       )}
     >
       <div className="mx-auto grid h-[4.25rem] max-w-[1440px] grid-cols-[auto_1fr_auto] items-center gap-4 px-5 sm:px-8">

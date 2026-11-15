@@ -157,7 +157,9 @@ export function ArtemisLanding({ onEnterConsole, onOpenAbout, onOpen, news }: Ar
       <main>
         {/* Orbit hero: a dark stage, the live count of today's detections, and the Earth rising
             as a huge spinning horizon with every fire burning on it as neon pixels. */}
-        <section data-hero className="hero-orbit relative isolate flex min-h-[calc(100svh-4.25rem)] flex-col overflow-hidden text-white">
+        {/* Pulled up under the sticky header (-mt/pt of its height) so the space backdrop and
+            stars run behind the translucent bar instead of the paper background. */}
+        <section data-hero className="hero-orbit relative isolate -mt-[4.25rem] flex min-h-[100svh] flex-col overflow-hidden pt-[4.25rem] text-white">
           <HeroStars />
           <div className="relative z-[2] mx-auto flex w-full max-w-[1440px] flex-1 flex-col items-center px-5 pb-[30vh] pt-10 text-center sm:px-8 sm:pt-12 lg:pb-[31vh]">
             <h1 className="font-display text-[clamp(1.85rem,4.4vw,4.6rem)] font-bold leading-[1.06] [text-shadow:0_2px_24px_#070504]">
