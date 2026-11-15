@@ -34,6 +34,9 @@ const GLOBE = new THREE.Vector3(0, EARTH_Y, 0);
 const LIMB_FADE = 0.45;
 const BASE_PITCH = -0.36;
 const BASE_ROLL = 0.05;
+/** About modal: the satellite on its own, larger, centred on its bounding box. */
+const SHOWCASE_SCALE = 0.72;
+const SHOWCASE_CENTRE: [number, number, number] = [-0.45, 0.45, 1.35];
 
 function rand(seed: number) {
   let s = seed;
@@ -124,9 +127,10 @@ function Env() {
   return null;
 }
 
-function Spacecraft({ reducedMotion }: { reducedMotion: boolean }) {
+function Spacecraft({ reducedMotion, showcase = false }: { reducedMotion: boolean; showcase?: boolean }) {
   const group = useRef<THREE.Group>(null);
   const orbit = useRef<THREE.Group>(null);
+  const drift = useRef(0);
   // Start just right of centre, on the front of the ring, heading right.
   const theta = useRef(1.25);
   const fade = useRef(1);
@@ -173,8 +177,17 @@ function Spacecraft({ reducedMotion }: { reducedMotion: boolean }) {
     if (!g) return;
     const k = 1 - Math.exp(-Math.min(delta, 0.05) * 2.4);
     const t = state.clock.elapsedTime;
-    const px = reducedMotion ? 0 : state.pointer.x;
-    const py = reducedMotion ? 0 : state.pointer.y;
+    const px = reducedMotion ? 0 : THREE.MathUtils.clamp(state.pointer.x, -1.5, 1.5);
+    const py = reducedMotion ? 0 : THREE.MathUtils.clamp(state.pointer.y, -1.5, 1.5);
+    if (showcase) {
+      // No orbit: it drifts on a slow yaw swing and leans toward the pointer.
+      if (!reducedMotion) drift.current += Math.min(delta, 0.05) * 0.22;
+      g.rotation.y += (0.85 + Math.sin(drift.current) * 0.3 + px * 0.5 - g.rotation.y) * k;
+      g.rotation.x += (-0.38 - py * 0.3 - g.rotation.x) * k;
+      g.rotation.z += (0.12 - px * 0.1 - g.rotation.z) * k;
+      g.position.y = reducedMotion ? 0 : Math.sin(t * 0.7) * 0.06;
+      return;
+    }
     // Full speed in front; up to 3.5x on the far side (sin < 0), so it comes back round sooner.
     const farSide = Math.max(0, -Math.sin(theta.current));
     if (!reducedMotion) theta.current -= ((Math.min(delta, 0.05) * Math.PI * 2) / ORBIT_S) * (1 + 2.5 * farSide);
@@ -233,7 +246,8 @@ function Spacecraft({ reducedMotion }: { reducedMotion: boolean }) {
 
   return (
     <group ref={orbit}>
-    <group ref={group} scale={SAT_SCALE}>
+    <group ref={group} scale={showcase ? SHOWCASE_SCALE : SAT_SCALE}>
+    <group position={showcase ? SHOWCASE_CENTRE : [0, 0, 0]}>
       {/* Bus */}
       {box([1.85, 0.82, 0.92], [0.42, 0.08, 0], mats.bus)}
       {box([1.75, 0.06, 0.86], [0.46, 0.52, 0], mats.busTop)}
@@ -300,6 +314,7 @@ function Spacecraft({ reducedMotion }: { reducedMotion: boolean }) {
       </group>
     </group>
     </group>
+    </group>
   );
 }
 
@@ -322,12 +337,9 @@ function CameraRig() {
 }
 
 
-/** Rendered only on the landing hero; pauses when the hero is off screen or the tab is hidden. */
-export default function ViirsSatellite() {
-  const wrapRef = useRef<HTMLDivElement>(null);
+/** True while the element is on screen and the tab is visible, so the canvas can pause. */
+function useRenderWhileVisible(ref: React.RefObject<HTMLElement>) {
   const [visible, setVisible] = useState(true);
-  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
-
   useEffect(() => {
     let onScreen = true;
     const update = () => setVisible(onScreen && document.visibilityState === 'visible');
@@ -335,13 +347,57 @@ export default function ViirsSatellite() {
       onScreen = e.isIntersecting;
       update();
     });
-    if (wrapRef.current) io.observe(wrapRef.current);
+    if (ref.current) io.observe(ref.current);
     document.addEventListener('visibilitychange', update);
     return () => {
       io.disconnect();
       document.removeEventListener('visibilitychange', update);
     };
-  }, []);
+  }, [ref]);
+  return visible;
+}
+
+function Lights() {
+  return (
+    <>
+      <ambientLight intensity={0.25} color="#ffd9b8" />
+      {/* Key light from the upper left, fire glow from below, ember rim from behind. */}
+      <directionalLight position={[-4, 5, 4]} intensity={1.5} color="#ffe6cc" />
+      <directionalLight position={[0.5, -5, 2.5]} intensity={2.1} color="#ff8a3d" />
+      <directionalLight position={[3, 1, -4]} intensity={1.2} color="#c67438" />
+    </>
+  );
+}
+
+/** The satellite on its own (About modal): centred, larger, leaning toward the pointer. */
+export function SatelliteShowcase({ className }: { className?: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const visible = useRenderWhileVisible(wrapRef);
+  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
+  return (
+    <div ref={wrapRef} className={className}>
+      <Canvas
+        frameloop={visible ? 'always' : 'never'}
+        dpr={Math.min(2, window.devicePixelRatio || 1)}
+        camera={{ position: [0, 0, CAM_Z], fov: FOV }}
+        gl={{ antialias: true, alpha: true }}
+        eventSource={document.body}
+        eventPrefix="client"
+        aria-hidden
+      >
+        <Env />
+        <Lights />
+        <Spacecraft reducedMotion={reducedMotion} showcase />
+      </Canvas>
+    </div>
+  );
+}
+
+/** Rendered only on the landing hero; pauses when the hero is off screen or the tab is hidden. */
+export default function ViirsSatellite() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const visible = useRenderWhileVisible(wrapRef);
+  const reducedMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
 
   return (
     <div ref={wrapRef} className="h-full w-full">
@@ -356,11 +412,7 @@ export default function ViirsSatellite() {
       >
         <CameraRig />
         <Env />
-        <ambientLight intensity={0.25} color="#ffd9b8" />
-        {/* Key light from the upper left, fire glow from the Earth below, ember rim from behind. */}
-        <directionalLight position={[-4, 5, 4]} intensity={1.5} color="#ffe6cc" />
-        <directionalLight position={[0.5, -5, 2.5]} intensity={2.1} color="#ff8a3d" />
-        <directionalLight position={[3, 1, -4]} intensity={1.2} color="#c67438" />
+        <Lights />
         <Spacecraft reducedMotion={reducedMotion} />
       </Canvas>
     </div>

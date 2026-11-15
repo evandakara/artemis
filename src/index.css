@@ -456,7 +456,43 @@ html.lenis, html.lenis body { height: auto; }
   100% { box-shadow: 0 0 0 8px rgba(230, 148, 48, 0); }
 }
 
+/* About modal: content rises in on a stagger (delay in --d), the step line draws across,
+   and each step number pulses once as the line reaches it. */
+.about-rise { animation: aboutRise 0.6s cubic-bezier(0.2, 0.75, 0.15, 1) var(--d, 0ms) both; }
+@keyframes aboutRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.about-draw { transform-origin: left center; animation: aboutDraw 1.4s cubic-bezier(0.45, 0, 0.2, 1) 0.8s both; }
+@keyframes aboutDraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.about-step { animation: aboutStep 0.9s ease-out both; }
+@keyframes aboutStep {
+  0% { box-shadow: 0 0 0 0 rgba(230, 148, 48, 0.7); transform: scale(0.85); }
+  35% { transform: scale(1.08); }
+  100% { box-shadow: 0 0 0 10px rgba(230, 148, 48, 0); transform: scale(1); }
+}
+
+/* About modal tab switch: a long day/night-style toggle. A dotted dark track and a glossy
+   ember thumb with the same dot grid; the thumb slides with a slight overshoot. */
+.about-switch {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.09) 1px, transparent 1.4px) 0 0 / 7px 7px,
+    linear-gradient(180deg, #08080a 0%, #17120e 100%);
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.about-switch-thumb {
+  background:
+    radial-gradient(circle, rgba(255, 238, 214, 0.24) 1px, transparent 1.5px) 0 0 / 6px 6px,
+    radial-gradient(120% 150% at 28% 18%, #ffd9a6 0%, #f2a650 26%, #d9831c 54%, #9e4324 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), inset 0 -4px 9px rgba(80, 25, 5, 0.45), 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(230, 148, 48, 0.3);
+  transition: transform 0.55s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+/* Satellite hero: each phrase bobs on its own phase; the dashed orbit line drifts. */
+.about-bob { animation: aboutBob 6.5s ease-in-out infinite; }
+@keyframes aboutBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.about-orbit { animation: aboutOrbit 18s linear infinite; }
+@keyframes aboutOrbit { to { stroke-dashoffset: -180; } }
+
 @media (prefers-reduced-motion: reduce) {
+  .about-rise, .about-draw, .about-step, .about-bob, .about-orbit { animation: none !important; }
+  .about-switch-thumb { transition: none; }
   .action-glow.action-glow { animation: none; box-shadow: 0 0 24px -4px rgba(230, 148, 48, 0.32); }
   .action-ping { animation: none !important; }
   .tip-in, .live-dot, .msg-in, .msg-in-right, .meter-fill, .bar-grow, .pop-in, .kpi-tile::after { animation: none !important; }

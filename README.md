@@ -14,6 +14,32 @@ Artemis is a global platform for putting NASA fire detections from MODIS (2000�
    - open the Impact Hub.
 3. **Audit** `/audit`: run demo plot B, then download the due diligence statement.
 
+## Project summary
+
+Growing up in Indonesia, our team has witnessed firsthand the devastating annual toll of Karhutla (forest and land fires). During these seasons, peatland fires blanket cities and schools in toxic transboundary haze, disrupt daily life, and leave local responders struggling to tell natural drought fires apart from systematic land-clearing burns. We built ARTEMIS to turn over two decades of satellite history into a practical shield for our communities and emergency managers worldwide.
+
+ARTEMIS is an open-source decision-support platform built around a Harmonized Burning Activity Calendar. It merges NASA Earthdata FIRMS fire detections from MODIS (2000 onward, 1 km pixels) and VIIRS (2012 onward, 375 m pixels) into one timeline you can compare across both sensors. Because VIIRS picks up smaller fires, raw detection counts jump about 4.9× after 2012 even when fire activity on the ground stays the same. Artemis removes that artificial jump.
+
+The pipeline runs in four steps:
+
+1. Grid every detection into Uber H3 resolution-8 cells (about 0.74 km²) and count fire cell-days: one cell on one day with at least one detection.
+2. Scale VIIRS to match MODIS with a calibration factor (α) for each calendar month, taken from the years both sensors overlap.
+3. Mask 18,251 persistent heat sources, such as volcanoes and industrial gas flares.
+4. Compare each month with a 25-year baseline using a robust anomaly score: (month − median) ÷ IQR.
+
+Driven by our focus on Karhutla, the harmonized archive holds 7.79 million detections for Indonesia as our primary demonstration region, while live FIRMS detections cover the whole world.
+
+From any hotspot, the Impact Hub gives you four ways to act:
+
+1. **Satellite escrow and relief routing.** Donate to fire groups through Every.org and Kitabisa, or try a simulated proof-of-extinguish escrow and pre-season prevention pool. Artemis predicts the next NOAA-20 and NOAA-21 overpass with SGP4 orbit models, so donors know when a satellite can next check whether the fire reads 0 MW.
+2. **Citizen ground-truth.** A simulated SMS and WhatsApp gateway lets village fire patrols (Masyarakat Peduli Api) with no mobile data confirm or reject a hotspot with one digit. Their replies become labels for checking the signature score.
+3. **Downwind haze shield.** Artemis combines live OpenWeatherMap wind with OpenStreetMap to draw 6, 12, and 24-hour smoke zones, list the schools and clinics inside them, and draft a haze alert for their staff.
+4. **Civic watchdog and P2P logistics.** Generate a printable evidence dossier for environmental law enforcement, and post equipment needs on a peer-to-peer board where nearby groups pledge supplies.
+
+Artemis also scores every Indonesian fire cell from 0 to 100 on four patterns linked to human-set fires: burning that recurs over the years, burning outside the fire season, line-shaped clusters, and afternoon timing. Treat a high score as a reason to check the site on the ground; the score never names who started a fire. An EUDR zero-burn audit checks any plot for burning as part of supply-chain due diligence.
+
+The app runs on TypeScript, React, Vite, and Tailwind CSS, with a Python data pipeline, and deploys on Vercel. Because the archive is pre-processed into static files, the map loads in the browser with no database behind it. Data colors use colorblind-safe ramps, and you can export data as CSV and reports as PDF.
+
 ## The problem
 
 Forest, peat, grassland, and agricultural fires worldwide are monitored mostly through 24–48 h live hotspot feeds. Those feeds answer "where is it burning now", but not "is this month unusual?", "does this place burn every few years?" or "what can I do about this hotspot?". Indonesia is the current demonstration region because it provides a strong test case for seasonal and recurring fire activity.

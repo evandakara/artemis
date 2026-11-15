@@ -7,11 +7,10 @@ import artemisWordmarkLight from '@/logo & team/artemis-wordmark-light.png';
 import { EmberField } from '@/components/landing/EmberField';
 
 /**
- * The team's Linktree. Paste the URL here once it exists: "Arek Artemis" in the Team column
- * (and in "Built by") then links to it. While empty, the name shows as plain text, so the
- * public page never has a dead link.
+ * The team's Linktree: "Arek Artemis" in the Team column (and in "Built by") links to it.
+ * Set it to '' to show the name as plain text instead.
  */
-const TEAM_LINKTREE_URL = '';
+const TEAM_LINKTREE_URL = 'https://linktr.ee/arek.artemis';
 
 /** Team members, listed under the team name. Add names and roles as { name, role }. */
 const TEAM: { name: string; role: string }[] = [];
