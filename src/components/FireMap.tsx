@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import L from 'leaflet';
+import { addCartoBasemap } from '@/lib/basemap';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { Info } from 'lucide-react';
@@ -34,11 +35,6 @@ interface FireMapProps {
   onMapReady: (map: L.Map) => void;
 }
 
-const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY || '';
-const CARTO_QUERY = CARTO_API_KEY ? `?key=${CARTO_API_KEY}` : '';
-
-const BASE_URL = `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png${CARTO_QUERY}`;
-const LABELS_URL = `https://{s}.basemaps.cartocdn.com/rastertiles/dark_only_labels/{z}/{x}/{y}.png${CARTO_QUERY}`;
 
 const MAX_LIVE_MAP_POINTS = 1000;
 
@@ -111,20 +107,8 @@ export function FireMap({
     map.createPane('viirsPane').style.zIndex = '430';
     map.createPane('harmonizedPane').style.zIndex = '440';
 
-    L.tileLayer(BASE_URL, {
-      maxZoom: 19,
-      minZoom: 2,
-      noWrap: true,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    }).addTo(map);
-
-    L.tileLayer(LABELS_URL, {
-      maxZoom: 19,
-      minZoom: 2,
-      noWrap: true,
-      pane: 'shadowPane',
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    }).addTo(map);
+    // CARTO dark tiles with a key, Esri's keyless dark canvas without one (src/lib/basemap.ts).
+    addCartoBasemap(map, { labels: true, maxZoom: 19, minZoom: 2, noWrap: true });
 
     // Add layer groups to map
     layersRef.current.modis.addTo(map);

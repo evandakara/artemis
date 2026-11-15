@@ -6,6 +6,16 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import artemisWordmarkLight from '@/logo & team/artemis-wordmark-light.png';
 import { EmberField } from '@/components/landing/EmberField';
 
+/**
+ * The team's Linktree. Paste the URL here once it exists: "Arek Artemis" in the Team column
+ * (and in "Built by") then links to it. While empty, the name shows as plain text, so the
+ * public page never has a dead link.
+ */
+const TEAM_LINKTREE_URL = '';
+
+/** Team members, listed under the team name. Add names and roles as { name, role }. */
+const TEAM: { name: string; role: string }[] = [];
+
 interface Props {
   onEnterConsole: () => void;
   onOpenAbout: () => void;
@@ -13,6 +23,16 @@ interface Props {
 }
 
 const linkCls = 'text-sm text-white/80 transition-colors hover:text-white';
+
+/** "Arek Artemis", linked to the Linktree when TEAM_LINKTREE_URL is set. */
+function TeamName({ className }: { className: string }) {
+  if (!TEAM_LINKTREE_URL) return <span className={className}>Arek Artemis</span>;
+  return (
+    <a href={TEAM_LINKTREE_URL} target="_blank" rel="noopener noreferrer" className={`${className} inline-flex items-center gap-1 underline-offset-4 hover:underline`}>
+      Arek Artemis <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
+    </a>
+  );
+}
 
 export function LandingFooter({ onEnterConsole, onOpenAbout, onOpen }: Props) {
   const year = new Date().getFullYear();
@@ -50,8 +70,9 @@ export function LandingFooter({ onEnterConsole, onOpenAbout, onOpen }: Props) {
       <EmberField density={0.6} sparks={false} className="-z-[5]" />
       <div aria-hidden className="footer-smoke -z-[4]" />
 
-      <div className="mx-auto grid max-w-[1440px] items-start gap-8 px-5 pb-8 pt-14 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(150px,0.65fr)_minmax(220px,0.9fr)] lg:gap-16 lg:pt-20">
-        <div className="max-w-md">
+      <div className="mx-auto grid max-w-[1440px] items-start gap-8 px-5 pb-8 pt-14 sm:px-8 sm:grid-cols-3 lg:pt-20 xl:grid-cols-[minmax(0,1.35fr)_minmax(150px,0.65fr)_minmax(220px,0.9fr)_minmax(200px,0.8fr)] xl:gap-12">
+        {/* Brand block: its own row below xl, so the four columns never squeeze it. */}
+        <div className="max-w-md sm:col-span-3 xl:col-span-1">
           <img src={artemisWordmarkLight} alt="Artemis" width={1200} height={326} className="h-9 w-auto object-contain" />
           <p className="mt-4 font-display text-lg font-bold leading-snug">Fire intelligence for Global</p>
           <p className="mt-2 text-sm leading-6 text-white/75">
@@ -67,7 +88,7 @@ export function LandingFooter({ onEnterConsole, onOpenAbout, onOpen }: Props) {
           </button>
           <p className="mt-6 text-xs text-white/60">© {year} Artemis · NASA Space Apps Challenge 2026</p>
           <p className="mt-1 text-xs text-white/75">
-            Built by <strong className="font-semibold text-white">Arek Artemis</strong>
+            Built by <TeamName className="font-semibold text-white" />
           </p>
         </div>
 
@@ -92,6 +113,19 @@ export function LandingFooter({ onEnterConsole, onOpenAbout, onOpen }: Props) {
             ))}
           </ul>
         </nav>
+
+        <section aria-labelledby="footer-team">
+          <h2 id="footer-team" className="font-semibold text-white">Team</h2>
+          <ul className="mt-4 space-y-2.5">
+            <li><TeamName className={linkCls} /></li>
+            <li className="text-sm text-white/80">Institut Teknologi Sepuluh Nopember</li>
+            {TEAM.map((m) => (
+              <li key={m.name} className="text-sm text-white/80">
+                {m.name} <span className="text-white/55">· {m.role}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
 
       {/* The giant line, set into the bottom edge and fading into the forest like the reference. */}

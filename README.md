@@ -127,6 +127,10 @@ Checks: `npm run typecheck`, `npm run lint`, `npm run build`.
 
 The processed archive ships in `public/data/` (about 126 MB), so the pipeline is only needed to rebuild it.
 
+**Keys are per machine.** `.env` is never committed, so a fresh clone or Codespace starts without keys: the live map then shows "FIRMS_API_KEY is not configured on the server" and has no live detections (the archive calendar still works). Add the keys from the table below to that machine's `.env`.
+
+**GitHub Codespaces.** `.devcontainer/devcontainer.json` installs dependencies and asks for the keys when the Codespace is created. To set them once for every Codespace: GitHub → **Settings → Codespaces → Secrets → New secret**, add `FIRMS_API_KEY`, `OPENWEATHER_API_KEY` (and the optional ones), give the secret access to this repository, then rebuild or recreate the Codespace. Run `npm run dev` and open the forwarded port 5173.
+
 ### Rebuilding the archive
 
 ```bash
@@ -148,7 +152,7 @@ Server-side variables are read only by the `/api/*` functions (and the Vite dev 
 | `FIRMS_API_KEY` | Server | Yes | NASA FIRMS MAP_KEY |
 | `OPENWEATHER_API_KEY` | Server | Yes | OpenWeatherMap current weather |
 | `NEWSDATA_API_KEY` | Server | No | NewsData.io (the legacy name `VITE_NEWSDATA_API_KEY` is still read server-side) |
-| `VITE_CARTO_API_KEY` | Browser | No | CARTO basemap key |
+| `VITE_CARTO_API_KEY` | Browser | No | CARTO dark basemap; without it the maps fall back to Esri's keyless dark canvas |
 | `VITE_EVERY_ORG_API_KEY` | Browser | No | Every.org public partner key |
 | `VITE_DONATION_DISCOVERY_URL` | Browser | No | Optional Python discovery service (`services/donation-discovery`) |
 

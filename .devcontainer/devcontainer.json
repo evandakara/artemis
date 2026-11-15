@@ -1,0 +1,34 @@
+{
+  "name": "Artemis",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": { "label": "Artemis dev server", "onAutoForward": "openPreview" }
+  },
+  // GitHub asks for these when a Codespace is created (or uses the user's saved
+  // Codespaces secrets). They arrive as environment variables, which the Vite dev server
+  // and the /api handlers read the same way as a local .env file.
+  "secrets": {
+    "FIRMS_API_KEY": {
+      "description": "Required. NASA FIRMS MAP_KEY for live fire detections (server-side only).",
+      "documentationUrl": "https://firms.modaps.eosdis.nasa.gov/api/map_key/"
+    },
+    "OPENWEATHER_API_KEY": {
+      "description": "Required for hotspot weather and haze cones (server-side only).",
+      "documentationUrl": "https://openweathermap.org/api"
+    },
+    "NEWSDATA_API_KEY": {
+      "description": "Optional. Wildfire news on the landing page (server-side only).",
+      "documentationUrl": "https://newsdata.io/"
+    },
+    "VITE_CARTO_API_KEY": {
+      "description": "Optional. CARTO dark basemap; without it the maps use Esri's keyless dark canvas.",
+      "documentationUrl": "https://carto.com/basemaps"
+    },
+    "VITE_EVERY_ORG_API_KEY": {
+      "description": "Optional. Every.org nonprofit search in the Impact Hub.",
+      "documentationUrl": "https://docs.every.org/"
+    }
+  }
+}
