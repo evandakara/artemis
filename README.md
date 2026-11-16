@@ -1,4 +1,4 @@
-# ARTEMIS: Global Fire Intelligent System
+# ARTEMIS: Global Fire Intelligence System
 
 > NASA Space Apps Challenge 2026 · Arek Artemis (ITS Surabaya)
 
