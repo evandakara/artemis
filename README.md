@@ -4,16 +4,6 @@
 
 Artemis is a global platform for putting NASA fire detections from MODIS (2000→) and VIIRS (2012→) on one comparable scale. The current processed archive and demonstration focus on Indonesia, while the same harmonization workflow is designed to extend to any region worldwide. From that record Artemis builds a month-by-month burning calendar, flags anomalous months and suspicious burn patterns, and turns any hotspot into an action.
 
-**Quick path for judges:**
-1. **Landing** `/`: live telemetry, raw vs harmonized chart.
-2. **Dashboard** `/dashboard`:
-   - pick Central Kalimantan;
-   - open Sep 2015 in the calendar;
-   - download the CSV;
-   - click a hexagon or live hotspot;
-   - open the Impact Hub.
-3. **Audit** `/audit`: run demo plot B, then download the due diligence statement.
-
 ## Project summary
 
 Growing up in Indonesia, our team has witnessed firsthand the devastating annual toll of Karhutla (forest and land fires). During these seasons, peatland fires blanket cities and schools in toxic transboundary haze, disrupt daily life, and leave local responders struggling to tell natural drought fires apart from systematic land-clearing burns. We built ARTEMIS to turn over two decades of satellite history into a practical shield for our communities and emergency managers worldwide.
